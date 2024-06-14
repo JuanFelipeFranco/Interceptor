@@ -1,5 +1,6 @@
 package com.felipe.Interceptor.interceptors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,6 +11,9 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 @Component("timeInterceptor")
@@ -26,7 +30,18 @@ public class LoadingTimeInterceptor implements HandlerInterceptor {
         Random random = new Random();
         int delay= random.nextInt(500);//genera un valor de 0 a 500
         Thread.sleep(delay); //espera que nos retrasa cuando la enviamos, una pausa de 0 a 500 milisegundos
-        return true;
+        //return true;
+
+        Map<String,String> json = new HashMap<>();
+        json.put("error", "no tienes acceso a esta pagina");
+        json.put("date", new Date().toString());
+
+        ObjectMapper mapper=new ObjectMapper();
+        String jsonString = mapper.writeValueAsString(json);//convirtiendo json a string
+        response.setContentType("application/json");
+        response.setStatus(401);
+        response.getWriter().write(jsonString);
+        return false; //en este caso si se envia en foo sale la fecha y el error 401 y el mensaje personalizado
     }
 
     @Override
